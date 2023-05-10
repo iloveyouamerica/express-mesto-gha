@@ -1,6 +1,6 @@
 const express = require('express'); // импорт express
-const mongoose = require('mongoose'); // импорт моста для связи с mongo
-const User = require('./models/user'); // импорт модели user
+const mongoose = require('mongoose'); // импорт моста для связи с mongodb
+const routes = require('./routes/index');
 
 const app = express();
 
@@ -10,7 +10,7 @@ const { PORT = 3000 } = process.env;
 // чтобы хакеры не видели лишнюю информацию о сервере (по книге Eaton R Brown)
 app.disable('x-powered-by');
 
-// подключаемся к серверу mongo и к база данных
+// подключаемся к серверу mongo и к базе данных
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb')
   .then(() => {
     console.log('Соединение с базой данных `mestobd` установлено!');
@@ -22,34 +22,15 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb')
 // использовать парсер тела экспресса, вместо body-parser
 app.use(express.json());
 
-// подключаем роуты, мидлвары и всё остальное
-/* app.post('/', (req, res) => {
-  const { name, about } = req.body;
-  console.log(`name: ${name}, about: ${about}`);
-  User.create({ name, about })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка: ${err}` }));
-}); */
+app.use((req, res, next) => {
+  req.user = {
+    _id: '645bd1459f057fb7932d6597', // вставили сюда _id созданного пользователя (временно)
+  };
 
-app.patch('/:id', (req, res) => {
-  console.log('PATCH');
-  User.findByIdAndUpdate(req.params.id, { name: 'Фокс Малдер' })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка: ${err}` }));
+  next();
 });
 
-app.get('/', (req, res) => {
-  console.log('get');
-  res.send('домашний путь /');
-});
-
-app.get('/:id', (req, res) => {
-  console.log('get динамический запрос с параметрами');
-  console.log(`req.params: ${req.params.id}`);
-  User.findById(req.params.id)
-    .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка: ${err}` }));
-});
+app.use('/', routes);
 
 // запуск сервера
 app.listen(PORT, () => {
