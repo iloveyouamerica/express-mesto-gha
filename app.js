@@ -1,5 +1,6 @@
-const express = require('express');
-const mongoose = require('mongoose');
+const express = require('express'); // импорт express
+const mongoose = require('mongoose'); // импорт моста для связи с mongo
+const User = require('./models/user'); // импорт модели user
 
 const app = express();
 
@@ -18,8 +19,39 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb')
     console.log(`Ошибка соединения с базой данных: ${err}`);
   });
 
-// подключаем роуты, мидлвары и всё остальное
+// использовать парсер тела экспресса, вместо body-parser
+app.use(express.json());
 
+// подключаем роуты, мидлвары и всё остальное
+/* app.post('/', (req, res) => {
+  const { name, about } = req.body;
+  console.log(`name: ${name}, about: ${about}`);
+  User.create({ name, about })
+    .then((user) => res.send({ data: user }))
+    .catch((err) => res.status(500).send({ message: `Произошла ошибка: ${err}` }));
+}); */
+
+app.patch('/:id', (req, res) => {
+  console.log('PATCH');
+  User.findByIdAndUpdate(req.params.id, { name: 'Фокс Малдер' })
+    .then((user) => res.send({ data: user }))
+    .catch((err) => res.status(500).send({ message: `Произошла ошибка: ${err}` }));
+});
+
+app.get('/', (req, res) => {
+  console.log('get');
+  res.send('домашний путь /');
+});
+
+app.get('/:id', (req, res) => {
+  console.log('get динамический запрос с параметрами');
+  console.log(`req.params: ${req.params.id}`);
+  User.findById(req.params.id)
+    .then((user) => res.send({ data: user }))
+    .catch((err) => res.status(500).send({ message: `Произошла ошибка: ${err}` }));
+});
+
+// запуск сервера
 app.listen(PORT, () => {
   console.log(`Сервер запущен на порту: ${PORT} - ура!`);
 });
