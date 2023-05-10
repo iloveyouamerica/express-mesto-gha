@@ -72,6 +72,10 @@ const editProfile = (req, res) => {
         res.status(NOT_FOUND_ERROR).send({
           message: 'Пользователь с таким id не найден',
         });
+      } else if (err.name === 'CastError') {
+        res.status(BAD_REQUEST_ERROR).send({
+          message: 'Передан некорректный идентификатор пользователя',
+        });
       } else {
         res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' });
       }
@@ -94,6 +98,10 @@ const editAvatar = (req, res) => {
       } else if (err.name === 'DocumentNotFoundError') {
         res.status(NOT_FOUND_ERROR).send({
           message: 'Пользователь с таким id не найден',
+        });
+      } else if (err.name === 'CastError') {
+        res.status(BAD_REQUEST_ERROR).send({
+          message: 'Передан некорректный идентификатор пользователя',
         });
       } else {
         res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' });
