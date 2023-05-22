@@ -1,5 +1,6 @@
 // модель пользователя
 const mongoose = require('mongoose');
+const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -15,6 +16,19 @@ const userSchema = new mongoose.Schema({
     maxlength: 30,
   },
   avatar: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    require: true,
+    validate: {
+      validator: (v) => validator.isEmail(v),
+      message: 'Некорректный e-mail',
+    },
+    unique: true,
+  },
+  password: {
     type: String,
     required: true,
   },
