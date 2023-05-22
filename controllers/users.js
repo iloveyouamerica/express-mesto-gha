@@ -1,7 +1,9 @@
 // контроллеры пользователя
+const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundErros');
 const RequestError = require('../errors/RequestError');
+const ConflictError = require('../errors/ConflictError');
 
 // получение всех пользователей
 const getUsers = (req, res, next) => {
@@ -28,12 +30,30 @@ const getUserById = (req, res, next) => {
 
 // добавление нового пользователя
 const createUser = (req, res, next) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((user) => res.status(201).send(user))
-    .catch((err) => {
-      next(err);
-    });
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+
+  // хешируем пароль
+  bcrypt.hash(password, 10)
+    .then((hash) => {
+      User.create({
+        name, about, avatar, email, password: hash,
+      })
+        .then((user) => res.status(201).send({
+          name: user.name, about: user.about, avatar: user.avatar, email: user.email,
+        }))
+        .catch((err) => {
+          if (err.name === 'ValidationError') {
+            return next(new RequestError('Некорректные данные при создании пользователя'));
+          }
+          if (err.code === 11000) {
+            return next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
+          }
+          return next(err);
+        });
+    })
+    .catch(next);
 };
 
 // редактирование профиля пользователя
