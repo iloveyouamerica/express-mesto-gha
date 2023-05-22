@@ -9,6 +9,7 @@ const {
   dislikeCard,
 } = require('../controllers/cards');
 
+// все запросы на /cards/..
 router.get('/', getCards);
 router.post('/', createCard);
 router.delete('/:cardId', deleteCard);
