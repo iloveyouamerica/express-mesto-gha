@@ -2,6 +2,7 @@
 const Card = require('../models/card');
 const NotFoundError = require('../errors/NotFoundErros');
 const RequestError = require('../errors/RequestError');
+const ForbiddenError = require('../errors/ForbiddenError');
 
 // получение всех карточек
 const getCards = (req, res, next) => {
@@ -19,17 +20,25 @@ const createCard = (req, res, next) => {
     .catch(next);
 };
 
-// удаление карточки
+// удаление карточки (может удалить только владелец)
 const deleteCard = (req, res, next) => {
+  const userId = req.user._id; // текущий авторизованный пользователь
   const { cardId } = req.params;
-  Card.findByIdAndRemove(cardId)
-    .then((deletedCard) => res.status(200).send(deletedCard))
+  Card.findById(cardId)
+    .then((card) => {
+      if (card.owner.toString() !== userId) {
+        throw new ForbiddenError('Удалить эту карточку может только автор');
+      }
+      return card;
+    })
+    .then((card) => Card.deleteOne(card))
+    .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         return next(new NotFoundError('Карточка с таким id не найдена'));
       }
       if (err.name === 'CastError') {
-        return next(new RequestError('Передан некорректный id карточки'));
+        return next(new RequestError('Неверный id карточки'));
       }
       return next(err);
     });
