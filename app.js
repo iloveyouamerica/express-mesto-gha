@@ -1,6 +1,7 @@
 const express = require('express'); // импорт express
 const mongoose = require('mongoose'); // импорт моста для связи с mongodb
 const routes = require('./routes/index');
+const { login, createUser } = require('./controllers/users');
 
 const app = express();
 
@@ -20,6 +21,9 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb')
   });
 
 app.use(express.json()); // Для парсинга тела запроса в формате JSON
+
+app.post('/signin', login);
+app.post('/signup', createUser);
 
 // временный юзер (хардкор)
 app.use((req, res, next) => {
