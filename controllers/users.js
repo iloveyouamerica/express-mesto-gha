@@ -99,7 +99,7 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
 
   // поиск пользователя по email
-  User.findOne({ email })
+  User.findOne({ email }).select('+password') // здесь хэш пароля нужен, поэтому select('+password')
     .then((user) => {
       if (!user) {
         return next(new AuthError('Неверный email или пароль'));
