@@ -1,9 +1,11 @@
 // контроллеры пользователя
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundErros');
 const RequestError = require('../errors/RequestError');
 const ConflictError = require('../errors/ConflictError');
+const AuthError = require('../errors/AuthError');
 
 // получение всех пользователей
 const getUsers = (req, res, next) => {
@@ -92,10 +94,35 @@ const editAvatar = (req, res, next) => {
     });
 };
 
+// контроллер login
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  // поиск пользователя по email
+  User.findOne({ email })
+    .then((user) => {
+      if (!user) {
+        return next(new AuthError('Неверный email или пароль'));
+      }
+      return bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            return next(new AuthError('Неверный email или пароль'));
+          }
+          // создаём токен
+          const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+          // вернём токен клиенту
+          return res.send(token);
+        });
+    })
+    .catch(next);
+};
+
 module.exports = {
   getUsers,
   getUserById,
   createUser,
   editProfile,
   editAvatar,
+  login,
 };
