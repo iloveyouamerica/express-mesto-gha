@@ -2,6 +2,7 @@ const express = require('express'); // импорт express
 const mongoose = require('mongoose'); // импорт моста для связи с mongodb
 const routes = require('./routes/index');
 const { login, createUser } = require('./controllers/users');
+const auth = require('./middlewares/auth');
 
 const app = express();
 
@@ -33,6 +34,9 @@ app.use((req, res, next) => {
 
   next();
 });
+
+// защищаем роуты авторизацией
+app.use(auth);
 
 // подключение всех роутов
 app.use(routes);
