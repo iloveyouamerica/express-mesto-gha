@@ -8,9 +8,11 @@ const {
   editProfile,
   editAvatar,
   // login,
+  getUserInfo,
 } = require('../controllers/users');
 
 router.get('/', getUsers);
+router.get('/me', getUserInfo); // получаем информацию о текущем пользователе
 router.get('/:userId', getUserById);
 // router.post('/', createUser);
 router.patch('/me', editProfile);

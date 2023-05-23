@@ -118,6 +118,15 @@ const login = (req, res, next) => {
     .catch(next);
 };
 
+// получаем информацию о текущем пользователе
+const getUserInfo = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      res.send(user);
+    })
+    .catch(next);
+};
+
 module.exports = {
   getUsers,
   getUserById,
@@ -125,4 +134,5 @@ module.exports = {
   editProfile,
   editAvatar,
   login,
+  getUserInfo,
 };
