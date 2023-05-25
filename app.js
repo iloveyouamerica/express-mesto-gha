@@ -5,17 +5,15 @@ const routes = require('./routes/index');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const { loginJoi, createUserJoi } = require('./middlewares/celebrate');
+const { PORT, DB_URI } = require('./config');
 
 const app = express();
-
-// настроим порт 3000
-const { PORT = 3000 } = process.env;
 
 // чтобы хакеры не видели лишнюю информацию о сервере (по книге Eaton R Brown)
 app.disable('x-powered-by');
 
 // подключаемся к серверу mongo и к базе данных
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb')
+mongoose.connect(DB_URI)
   .then(() => {
     console.log('Соединение с базой данных `mestobd` установлено!');
   })
