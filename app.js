@@ -6,6 +6,7 @@ const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const { loginJoi, createUserJoi } = require('./middlewares/celebrate');
 const { PORT, DB_URI } = require('./config');
+const { centralCatchErrors } = require('./middlewares/centralCatchErrors');
 
 const app = express();
 
@@ -36,22 +37,7 @@ app.use(routes);
 app.use(errors());
 
 // централизованная обработка ошибок
-// обработчик принимает на себя все ошибки, которые были переданы с помощью next(err)
-app.use((err, req, res, next) => {
-  // если у ошибки нет статуса, выставляем 500
-  const { statusCode = 500, message } = err;
-  // console.log(`Status: ${statusCode}, Err: ${message}`);
-
-  res
-    .status(statusCode)
-    .send({
-      // проверяем статус и выставляем сообщение в зависимости от него
-      message: statusCode === 500
-        ? 'На сервере произошла ошибка'
-        : message,
-    });
-  next();
-});
+app.use(centralCatchErrors);
 
 // запуск сервера
 app.listen(PORT, () => {
