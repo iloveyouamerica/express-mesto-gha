@@ -6,7 +6,7 @@ const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const { loginJoi, createUserJoi } = require('./middlewares/celebrate');
 const { PORT, DB_URI } = require('./config');
-const { centralCatchErrors } = require('./middlewares/centralCatchErrors');
+const centralCatchErrors = require('./middlewares/centralCatchErrors');
 
 const app = express();
 
